@@ -50,11 +50,21 @@ public static class MusicFunctions
         return number;
     }
 
-    public static int GetNoteSpriteIndex(int noteIndex)
+    public static int GetNoteSpriteIndex(int noteIndex, bool pressNote = false)
     {
-        if (noteIndex % 2 == 0)
-            return 0;
+        if (pressNote)
+        {
+            if (noteIndex % 2 == 0)
+                return 2;
+            else
+                return 3;
+        }
         else
-            return 1;
+        {
+            if (noteIndex % 2 == 0)
+                return 0;
+            else
+                return 1;
+        }
     }
 }

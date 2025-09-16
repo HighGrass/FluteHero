@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,13 +12,18 @@ public class MusicVisualizer : MonoBehaviour
     GameManager gameManager;
 
     [SerializeField]
-    private float idealProgress = 0.9f;
+    private float idealProgress = 0.88f;
 
     [SerializeField]
-    private float progressOffset = 0.05f;
+    private float progressOffset = 0.025f;
+
+    [SerializeField]
+    float dragNoteTimeout = 0.1f;
 
     [SerializeField]
     int ticksToHit = 10;
+
+    bool[] paintingLine = new bool[6];
 
     public int CurrentTick =>
         MusicFunctions.GetTickFromTime(Time.time - initialTime, music.MusicBPM);
@@ -63,13 +69,26 @@ public class MusicVisualizer : MonoBehaviour
             OnPlayNote(5);
         if (Input.GetKeyDown(KeyCode.Alpha6))
             OnPlayNote(6);
+
+        if (Input.GetKeyUp(KeyCode.Alpha1))
+            OnReleaseNote(1);
+        if (Input.GetKeyUp(KeyCode.Alpha2))
+            OnReleaseNote(2);
+        if (Input.GetKeyUp(KeyCode.Alpha3))
+            OnReleaseNote(3);
+        if (Input.GetKeyUp(KeyCode.Alpha4))
+            OnReleaseNote(4);
+        if (Input.GetKeyUp(KeyCode.Alpha5))
+            OnReleaseNote(5);
+        if (Input.GetKeyUp(KeyCode.Alpha6))
+            OnReleaseNote(6);
     }
 
     void SpawnNote(Note note)
     {
         int noteIndex = note.NoteIndex - 1;
 
-        int spriteIndex = MusicFunctions.GetNoteSpriteIndex(noteIndex);
+        int spriteIndex = MusicFunctions.GetNoteSpriteIndex(noteIndex, note.IsDragNote);
 
         GameObject newNote = Instantiate(
             gameManager.NotePrefabs[spriteIndex].gameObject,
@@ -120,8 +139,32 @@ public class MusicVisualizer : MonoBehaviour
                     && progress > idealProgress + progressOffset
                     && !pressingNotes.Contains(note.Key)
                 )
-                    obj.GetComponentInChildren<Image>().color = Color.red;
-
+                {
+                    MissNote(note.Key);
+                    ignoreNotes.Add(note.Key);
+                    // Image[] images = obj.GetComponentsInChildren<Image>();
+                    // foreach (Image image in images)
+                    //     image.color = Color.red;
+                }
+                else if (
+                    ignoreNotes.Contains(note.Key)
+                    && progress > idealProgress + dragNoteTimeout
+                    && pressingNotes.Contains(note.Key)
+                )
+                {
+                    pressingNotes.Remove(note.Key);
+                    HitNote(note.Key);
+                    Debug.Log("Hit long note");
+                }
+                else if (
+                    ignoreNotes.Contains(note.Key)
+                    && progress > idealProgress + dragNoteTimeout
+                    && !pressingNotes.Contains(note.Key)
+                    && note.Key.IsDragNote
+                )
+                {
+                    MissNote(note.Key);
+                }
                 obj.transform.localPosition = Vector3.Lerp(
                     new Vector3(-boardSize / 2, 0, 0), // início fora do tabuleiro
                     new Vector3(boardSize / 2, 0, 0), // fim do tabuleiro
@@ -160,17 +203,71 @@ public class MusicVisualizer : MonoBehaviour
             {
                 if (thisNoteIndex == noteIndex)
                 {
-                    noteObj.GetComponentInChildren<Image>().color = Color.green;
-
-                    gameManager.pointsCounter.HitNote(note.Key);
                     ignoreNotes.Add(note.Key);
 
-                    if (note.Key.isDragNote())
+                    if (note.Key.IsDragNote)
+                    {
                         pressingNotes.Add(note.Key);
+                        HoldNote(note.Key);
+                    }
+                    else
+                    {
+                        HitNote(note.Key);
+                        // Image[] images = note.Value.GetComponentsInChildren<Image>();
+                        // foreach (Image image in images)
+                        //     image.color = Color.green;
+                    }
                 }
             }
         }
     }
 
-    void OnReleaseNote(int noteIndex) { }
+    void OnReleaseNote(int noteIndex)
+    {
+        List<Note> pressingNotesCopy = new List<Note>(pressingNotes);
+        foreach (Note note in pressingNotesCopy)
+        {
+            if (note.NoteIndex == noteIndex)
+                pressingNotes.Remove(note);
+        }
+    }
+
+    void HitNote(Note note)
+    {
+        int noteIndex = note.NoteIndex - 1;
+        SetBoardLineColor(noteIndex, Color.green);
+        gameManager.pointsCounter.HitNote(note);
+    }
+
+    void MissNote(Note note)
+    {
+        int noteIndex = note.NoteIndex - 1;
+        SetBoardLineColor(noteIndex, Color.red);
+    }
+
+    void HoldNote(Note note)
+    {
+        int noteIndex = note.NoteIndex - 1;
+        SetBoardLineColor(noteIndex, Color.yellow, 0.3f);
+    }
+
+    void SetBoardLineColor(int lineIndex, Color color, float delay = 0.2f)
+    {
+        if (paintingLine[lineIndex])
+            return;
+
+        paintingLine[lineIndex] = true;
+        StartCoroutine(ChangeBoardLineColor(lineIndex, color, delay));
+    }
+
+    IEnumerator ChangeBoardLineColor(int lineIndex, Color color, float delay)
+    {
+        Color defaultColor = gameManager.NoteBoardLines[lineIndex].GetComponent<Image>().color;
+
+        gameManager.NoteBoardLines[lineIndex].GetComponent<Image>().color = color;
+        yield return new WaitForSeconds(delay);
+        gameManager.NoteBoardLines[lineIndex].GetComponent<Image>().color = defaultColor;
+        paintingLine[lineIndex] = false;
+        yield break;
+    }
 }
