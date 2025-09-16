@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MusicVisualizer : MonoBehaviour
 {
@@ -8,6 +9,12 @@ public class MusicVisualizer : MonoBehaviour
 
     [SerializeField]
     GameManager gameManager;
+
+    [SerializeField]
+    private float idealProgress = 0.9f;
+
+    [SerializeField]
+    private float progressOffset = 0.05f;
 
     public int CurrentTick =>
         MusicFunctions.GetTickFromTime(Time.time - initialTime, music.MusicBPM);
@@ -35,9 +42,25 @@ public class MusicVisualizer : MonoBehaviour
         UpdateNotes();
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+            OnPlayNote(KeyCode.Alpha1);
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+            OnPlayNote(KeyCode.Alpha2);
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+            OnPlayNote(KeyCode.Alpha3);
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+            OnPlayNote(KeyCode.Alpha4);
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+            OnPlayNote(KeyCode.Alpha5);
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+            OnPlayNote(KeyCode.Alpha6);
+    }
+
     void SpawnNote(Note note)
     {
-        int noteIndex = note.NoteIndex--;
+        int noteIndex = note.NoteIndex - 1;
         int noteDuration = note.NoteDuration;
 
         GameObject newNote = Instantiate(
@@ -53,7 +76,10 @@ public class MusicVisualizer : MonoBehaviour
     void UpdateNotes()
     {
         int currentTick = CurrentTick;
-        foreach (KeyValuePair<Note, GameObject> note in spawnedNotes)
+        Dictionary<Note, GameObject> spawnedNotesCopy = new Dictionary<Note, GameObject>(
+            spawnedNotes
+        );
+        foreach (KeyValuePair<Note, GameObject> note in spawnedNotesCopy)
         {
             int spawnTick = note.Key.TickSpawner; // quando apareceu
             int hitTick = spawnTick + 10; // quando deve chegar ao alvo
@@ -75,12 +101,47 @@ public class MusicVisualizer : MonoBehaviour
                 spawnedNotes.Remove(note.Key);
                 Destroy(obj);
             }
+            else
+            {
+                obj.transform.localPosition = Vector3.Lerp(
+                    new Vector3(-boardSize / 2, 0, 0), // início fora do tabuleiro
+                    new Vector3(boardSize / 2, 0, 0), // fim do tabuleiro
+                    progress
+                );
+            }
+        }
+    }
 
-            obj.transform.localPosition = Vector3.Lerp(
-                new Vector3(-boardSize / 2, 0, 0), // início fora do tabuleiro
-                new Vector3(boardSize / 2, 0, 0), // fim do tabuleiro
-                progress
-            );
+    void OnPlayNote(KeyCode key)
+    {
+        int noteIndex = MusicFunctions.ConvertKeyToNumber(key);
+
+        foreach (KeyValuePair<Note, GameObject> note in spawnedNotes)
+        {
+            int thisNoteIndex = note.Key.NoteIndex;
+            GameObject noteObj = note.Value;
+
+            float progress =
+                (float)(
+                    Time.time - MusicFunctions.GetTimeFromTick(note.Key.TickSpawner, music.MusicBPM)
+                )
+                / (
+                    MusicFunctions.GetTimeFromTick(note.Key.TickSpawner + 10, music.MusicBPM)
+                    - MusicFunctions.GetTimeFromTick(note.Key.TickSpawner, music.MusicBPM)
+                );
+            progress = Mathf.Clamp01(progress);
+
+            if (
+                progress >= idealProgress - progressOffset
+                && progress <= idealProgress + progressOffset
+            )
+            {
+                if (thisNoteIndex == noteIndex)
+                {
+                    Debug.Log("Obj name: " + noteObj.name);
+                    noteObj.GetComponentInChildren<Image>().color = Color.green;
+                }
+            }
         }
     }
 }

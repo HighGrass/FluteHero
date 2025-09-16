@@ -28,9 +28,6 @@ public static class MusicFunctions
         int number = -1;
         switch (key)
         {
-            case KeyCode.Alpha0:
-                number = 0;
-                break;
             case KeyCode.Alpha1:
                 number = 1;
                 break;
