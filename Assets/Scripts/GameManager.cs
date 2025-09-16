@@ -11,4 +11,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     public MusicVisualizer musicVisualizer;
+
+    [SerializeField]
+    public PointsCounter pointsCounter;
 }

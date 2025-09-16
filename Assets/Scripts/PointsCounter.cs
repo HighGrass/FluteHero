@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class PointsCounter : MonoBehaviour
@@ -29,6 +30,18 @@ public class PointsCounter : MonoBehaviour
 
     */
 
+    [SerializeField]
+    TMP_Text pointsText;
+
+    [SerializeField]
+    TMP_Text multiplierText;
+
+    void FixedUpdate()
+    {
+        energy = Mathf.Clamp(energy - enegyDecayPerSecond * Time.fixedDeltaTime, 0, float.MaxValue);
+        UpdateText();
+    }
+
     public void HitNote(Note note)
     {
         int noteDuration = note.NoteDuration;
@@ -57,5 +70,11 @@ public class PointsCounter : MonoBehaviour
             return 2;
         else
             return 1;
+    }
+
+    void UpdateText()
+    {
+        pointsText.text = Points.ToString();
+        multiplierText.text = GetMultiplier().ToString() + "x";
     }
 }

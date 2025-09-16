@@ -139,7 +139,10 @@ public class MusicVisualizer : MonoBehaviour
                 if (thisNoteIndex == noteIndex)
                 {
                     Debug.Log("Obj name: " + noteObj.name);
+
                     noteObj.GetComponentInChildren<Image>().color = Color.green;
+
+                    gameManager.pointsCounter.HitNote(note.Key);
                 }
             }
         }
