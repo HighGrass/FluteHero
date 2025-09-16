@@ -20,6 +20,10 @@ public class MusicVisualizer : MonoBehaviour
         MusicFunctions.GetTickFromTime(Time.time - initialTime, music.MusicBPM);
 
     Dictionary<Note, GameObject> spawnedNotes = new Dictionary<Note, GameObject>();
+    Dictionary<Note, int> pressingNotes = new Dictionary<Note, int>();
+    List<Note> ignoreNotes = new List<Note>();
+
+    // note => pressed tick
 
     public void SetMusic(MusicDetails music) => this.music = music;
 
@@ -99,6 +103,8 @@ public class MusicVisualizer : MonoBehaviour
             if (progress >= 1)
             {
                 spawnedNotes.Remove(note.Key);
+                if (ignoreNotes.Contains(note.Key))
+                    ignoreNotes.Remove(note.Key);
                 Destroy(obj);
             }
             else
@@ -120,6 +126,9 @@ public class MusicVisualizer : MonoBehaviour
         {
             int thisNoteIndex = note.Key.NoteIndex;
             GameObject noteObj = note.Value;
+
+            if (ignoreNotes.Contains(note.Key))
+                continue; // para ter a certeza que não acertamos a mesma nota 2 vezes
 
             float progress =
                 (float)(
@@ -143,6 +152,7 @@ public class MusicVisualizer : MonoBehaviour
                     noteObj.GetComponentInChildren<Image>().color = Color.green;
 
                     gameManager.pointsCounter.HitNote(note.Key);
+                    ignoreNotes.Add(note.Key);
                 }
             }
         }
