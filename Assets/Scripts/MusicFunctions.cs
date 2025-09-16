@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public static class MusicFunctions
 {
     public static float GetSyncTiming(float time, int bpm)
@@ -19,5 +21,35 @@ public static class MusicFunctions
     {
         float baseNoteSize = 60f / bpm;
         return (int)(tick * baseNoteSize);
+    }
+
+    public static int ConvertKeyToNumber(KeyCode key)
+    {
+        int number = -1;
+        switch (key)
+        {
+            case KeyCode.Alpha0:
+                number = 0;
+                break;
+            case KeyCode.Alpha1:
+                number = 1;
+                break;
+            case KeyCode.Alpha2:
+                number = 2;
+                break;
+            case KeyCode.Alpha3:
+                number = 3;
+                break;
+            case KeyCode.Alpha4:
+                number = 4;
+                break;
+            case KeyCode.Alpha5:
+                number = 5;
+                break;
+            case KeyCode.Alpha6:
+                number = 6;
+                break;
+        }
+        return number;
     }
 }

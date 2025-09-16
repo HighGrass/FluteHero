@@ -42,6 +42,8 @@ public class MusicReader : MonoBehaviour
         foreach (string note in notes)
         {
             // 5-1-0
+            if (note.Length <= 1)
+                continue;
             Debug.Log(note);
             int tick = int.Parse(note.Split('-')[0]);
             int index = int.Parse(note.Split('-')[1]);

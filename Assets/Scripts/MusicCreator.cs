@@ -18,6 +18,8 @@ public class MusicCreator : MonoBehaviour
     float initialDelay;
     string musicNotes;
 
+    private int MAX_NOTE_DURATION = 5;
+
     private static Dictionary<KeyCode, float> keysMap = new Dictionary<KeyCode, float>
     { //key, time (start)
         { KeyCode.Alpha1, 0f },
@@ -44,22 +46,19 @@ public class MusicCreator : MonoBehaviour
     void CreateNote(KeyCode key)
     {
         // |key-startTime-endTime|
-        musicNotes +=
-            $"{key}-{MusicFunctions.GetSyncTiming(keysMap[key], musicBPM)}-{MusicFunctions.GetSyncTiming(Time.time, musicBPM)}|";
-        Debug.Log(
-            "Node: "
-                + key
-                + " | Duration: "
-                + (
-                    MusicFunctions.GetSyncTiming(Time.time, musicBPM)
-                    - MusicFunctions.GetSyncTiming(keysMap[key], musicBPM)
-                )
-                + " | Tick : "
-                + MusicFunctions.GetTickFromTime(
-                    MusicFunctions.GetSyncTiming(keysMap[key], musicBPM),
-                    musicBPM
-                )
+
+        int tick = MusicFunctions.GetTickFromTime(
+            MusicFunctions.GetSyncTiming(Time.time, musicBPM),
+            musicBPM
         );
+
+        int duration =
+            MusicFunctions.GetTickFromTime(Time.time, musicBPM)
+            - MusicFunctions.GetTickFromTime(keysMap[key], musicBPM);
+
+        string thisNote =
+            $"{tick}-{MusicFunctions.ConvertKeyToNumber(key)}-{Mathf.Clamp(duration, 0, MAX_NOTE_DURATION)}|\n";
+        musicNotes += thisNote;
         keysMap[key] = 0f;
     }
 
@@ -67,6 +66,23 @@ public class MusicCreator : MonoBehaviour
     {
         string filePath = Path.Combine(Application.persistentDataPath, musicName);
         Debug.Log(filePath);
-        FileManager.WriteToFile(filePath, musicNotes);
+        string file = FormatMusicFile();
+        FileManager.WriteToFile(filePath, file);
+    }
+
+    string FormatMusicFile()
+    {
+        string file =
+            musicName
+            + "|\n"
+            + musicTime
+            + "|\n"
+            + musicBPM
+            + "|\n"
+            + initialDelay
+            + "|\n"
+            + "!Notes!\n"
+            + musicNotes;
+        return file;
     }
 }

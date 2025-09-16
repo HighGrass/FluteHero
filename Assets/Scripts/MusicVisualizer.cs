@@ -37,7 +37,7 @@ public class MusicVisualizer : MonoBehaviour
 
     void SpawnNote(Note note)
     {
-        int noteIndex = note.NoteIndex;
+        int noteIndex = note.NoteIndex--;
         int noteDuration = note.NoteDuration;
 
         GameObject newNote = Instantiate(
@@ -69,6 +69,12 @@ public class MusicVisualizer : MonoBehaviour
                     - MusicFunctions.GetTimeFromTick(spawnTick, music.MusicBPM)
                 );
             progress = Mathf.Clamp01(progress); // para não sair do range
+
+            if (progress >= 1)
+            {
+                spawnedNotes.Remove(note.Key);
+                Destroy(obj);
+            }
 
             obj.transform.localPosition = Vector3.Lerp(
                 new Vector3(-boardSize / 2, 0, 0), // início fora do tabuleiro

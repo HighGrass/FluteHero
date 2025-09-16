@@ -177,9 +177,9 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 162802372}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1678095335}
@@ -187,9 +187,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 481.5, y: 271}
+  m_SizeDelta: {x: 963, y: 542}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &162802374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -229,7 +229,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!223 &162802376
 Canvas:
   m_ObjectHideFlags: 0
@@ -239,7 +239,7 @@ Canvas:
   m_GameObject: {fileID: 162802372}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 2
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -407,7 +407,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 220.8
+  orthographic size: 249.2
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -432,7 +432,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 379, y: 214, z: -10}
+  m_LocalPosition: {x: 591, y: 306, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1241,9 +1241,9 @@ MonoBehaviour:
   - {fileID: 150553244631314619, guid: 3b7477808be7b2541866af5289e9de88, type: 3}
   - {fileID: 150553244631314619, guid: 465ca49e4bfa260418c150ddce84e95c, type: 3}
   - {fileID: 150553244631314619, guid: b7ed8ed7d86894d4bacb1ad28f2b553a, type: 3}
-  - {fileID: 150553244631314619, guid: 1b34ee8c17b57db418dd56bd7fbf2c98, type: 3}
-  - {fileID: 150553244631314619, guid: de00cd5b1e061164fa165ac407fc6e10, type: 3}
-  - {fileID: 150553244631314619, guid: cf9619fe4c1412f479027db95df13f9b, type: 3}
+  - {fileID: 150553244631314619, guid: 6a8624ed63785154c9e926db6af6c0f8, type: 3}
+  - {fileID: 150553244631314619, guid: 89049c75eaae2f34e9a68423f3efd61b, type: 3}
+  - {fileID: 150553244631314619, guid: 8afbace9570711d46ace504337bd9a71, type: 3}
   NoteBoardLines:
   - {fileID: 1748418363}
   - {fileID: 1438564106}
