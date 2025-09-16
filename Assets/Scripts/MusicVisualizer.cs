@@ -16,11 +16,14 @@ public class MusicVisualizer : MonoBehaviour
     [SerializeField]
     private float progressOffset = 0.05f;
 
+    [SerializeField]
+    int ticksToHit = 10;
+
     public int CurrentTick =>
         MusicFunctions.GetTickFromTime(Time.time - initialTime, music.MusicBPM);
 
     Dictionary<Note, GameObject> spawnedNotes = new Dictionary<Note, GameObject>();
-    Dictionary<Note, int> pressingNotes = new Dictionary<Note, int>();
+    List<Note> pressingNotes = new List<Note>();
     List<Note> ignoreNotes = new List<Note>();
 
     // note => pressed tick
@@ -49,26 +52,27 @@ public class MusicVisualizer : MonoBehaviour
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
-            OnPlayNote(KeyCode.Alpha1);
+            OnPlayNote(1);
         if (Input.GetKeyDown(KeyCode.Alpha2))
-            OnPlayNote(KeyCode.Alpha2);
+            OnPlayNote(2);
         if (Input.GetKeyDown(KeyCode.Alpha3))
-            OnPlayNote(KeyCode.Alpha3);
+            OnPlayNote(3);
         if (Input.GetKeyDown(KeyCode.Alpha4))
-            OnPlayNote(KeyCode.Alpha4);
+            OnPlayNote(4);
         if (Input.GetKeyDown(KeyCode.Alpha5))
-            OnPlayNote(KeyCode.Alpha5);
+            OnPlayNote(5);
         if (Input.GetKeyDown(KeyCode.Alpha6))
-            OnPlayNote(KeyCode.Alpha6);
+            OnPlayNote(6);
     }
 
     void SpawnNote(Note note)
     {
         int noteIndex = note.NoteIndex - 1;
-        int noteDuration = note.NoteDuration;
+
+        int spriteIndex = MusicFunctions.GetNoteSpriteIndex(noteIndex);
 
         GameObject newNote = Instantiate(
-            gameManager.NotePrefabs[noteDuration].gameObject,
+            gameManager.NotePrefabs[spriteIndex].gameObject,
             gameManager.NoteBoardLines[noteIndex]
         );
         newNote.transform.localPosition = Vector3.zero;
@@ -86,7 +90,7 @@ public class MusicVisualizer : MonoBehaviour
         foreach (KeyValuePair<Note, GameObject> note in spawnedNotesCopy)
         {
             int spawnTick = note.Key.TickSpawner; // quando apareceu
-            int hitTick = spawnTick + 10; // quando deve chegar ao alvo
+            int hitTick = spawnTick + ticksToHit; // quando deve chegar ao alvo
             GameObject obj = note.Value;
 
             RectTransform boardRect = obj.transform.parent.GetComponent<RectTransform>();
@@ -105,10 +109,19 @@ public class MusicVisualizer : MonoBehaviour
                 spawnedNotes.Remove(note.Key);
                 if (ignoreNotes.Contains(note.Key))
                     ignoreNotes.Remove(note.Key);
-                Destroy(obj);
+
+                if (!pressingNotes.Contains(note.Key))
+                    Destroy(obj);
             }
             else
             {
+                if (
+                    !ignoreNotes.Contains(note.Key)
+                    && progress > idealProgress + progressOffset
+                    && !pressingNotes.Contains(note.Key)
+                )
+                    obj.GetComponentInChildren<Image>().color = Color.red;
+
                 obj.transform.localPosition = Vector3.Lerp(
                     new Vector3(-boardSize / 2, 0, 0), // início fora do tabuleiro
                     new Vector3(boardSize / 2, 0, 0), // fim do tabuleiro
@@ -118,10 +131,8 @@ public class MusicVisualizer : MonoBehaviour
         }
     }
 
-    void OnPlayNote(KeyCode key)
+    void OnPlayNote(int noteIndex)
     {
-        int noteIndex = MusicFunctions.ConvertKeyToNumber(key);
-
         foreach (KeyValuePair<Note, GameObject> note in spawnedNotes)
         {
             int thisNoteIndex = note.Key.NoteIndex;
@@ -135,8 +146,10 @@ public class MusicVisualizer : MonoBehaviour
                     Time.time - MusicFunctions.GetTimeFromTick(note.Key.TickSpawner, music.MusicBPM)
                 )
                 / (
-                    MusicFunctions.GetTimeFromTick(note.Key.TickSpawner + 10, music.MusicBPM)
-                    - MusicFunctions.GetTimeFromTick(note.Key.TickSpawner, music.MusicBPM)
+                    MusicFunctions.GetTimeFromTick(
+                        note.Key.TickSpawner + ticksToHit,
+                        music.MusicBPM
+                    ) - MusicFunctions.GetTimeFromTick(note.Key.TickSpawner, music.MusicBPM)
                 );
             progress = Mathf.Clamp01(progress);
 
@@ -147,14 +160,17 @@ public class MusicVisualizer : MonoBehaviour
             {
                 if (thisNoteIndex == noteIndex)
                 {
-                    Debug.Log("Obj name: " + noteObj.name);
-
                     noteObj.GetComponentInChildren<Image>().color = Color.green;
 
                     gameManager.pointsCounter.HitNote(note.Key);
                     ignoreNotes.Add(note.Key);
+
+                    if (note.Key.isDragNote())
+                        pressingNotes.Add(note.Key);
                 }
             }
         }
     }
+
+    void OnReleaseNote(int noteIndex) { }
 }

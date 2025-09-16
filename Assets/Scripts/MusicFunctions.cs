@@ -49,4 +49,12 @@ public static class MusicFunctions
         }
         return number;
     }
+
+    public static int GetNoteSpriteIndex(int noteIndex)
+    {
+        if (noteIndex % 2 == 0)
+            return 0;
+        else
+            return 1;
+    }
 }
