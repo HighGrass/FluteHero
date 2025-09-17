@@ -18,6 +18,9 @@ public class MusicCreator : MonoBehaviour
     float initialDelay;
     string musicNotes;
 
+    [SerializeField]
+    int ticksPerBeat = 4;
+
     private int MAX_NOTE_DURATION = 5;
 
     private static Dictionary<KeyCode, float> keysMap = new Dictionary<KeyCode, float>
@@ -48,13 +51,14 @@ public class MusicCreator : MonoBehaviour
         // |key-startTime-endTime|
 
         int tick = MusicFunctions.GetTickFromTime(
-            MusicFunctions.GetSyncTiming(Time.time, musicBPM),
-            musicBPM
+            MusicFunctions.GetSyncTiming(Time.time, musicBPM, ticksPerBeat),
+            musicBPM,
+            ticksPerBeat
         );
 
         int duration =
-            MusicFunctions.GetTickFromTime(Time.time, musicBPM)
-            - MusicFunctions.GetTickFromTime(keysMap[key], musicBPM);
+            MusicFunctions.GetTickFromTime(Time.time, musicBPM, ticksPerBeat)
+            - MusicFunctions.GetTickFromTime(keysMap[key], musicBPM, ticksPerBeat);
 
         string thisNote =
             $"{tick}-{MusicFunctions.ConvertKeyToNumber(key)}-{Mathf.Clamp(duration, 0, MAX_NOTE_DURATION)}|\n";

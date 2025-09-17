@@ -8,6 +8,7 @@ public class MusicDetails
     public int MusicDuration { get; }
     public int MusicBPM { get; }
     public float InitialDelay { get; }
+    public int TicksPerBeat { get; } = 4;
 
     public List<Note> Notes { get; }
 

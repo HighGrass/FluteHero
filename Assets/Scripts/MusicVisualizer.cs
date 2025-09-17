@@ -21,12 +21,12 @@ public class MusicVisualizer : MonoBehaviour
     float dragNoteTimeout = 0.1f;
 
     [SerializeField]
-    int ticksToHit = 10;
+    int ticksToHit = 20;
 
     bool[] paintingLine = new bool[6];
 
     public int CurrentTick =>
-        MusicFunctions.GetTickFromTime(Time.time - initialTime, music.MusicBPM);
+        MusicFunctions.GetTickFromTime(Time.time - initialTime, music.MusicBPM, music.TicksPerBeat);
 
     Dictionary<Note, GameObject> spawnedNotes = new Dictionary<Note, GameObject>();
     List<Note> pressingNotes = new List<Note>();
@@ -115,13 +115,20 @@ public class MusicVisualizer : MonoBehaviour
             RectTransform boardRect = obj.transform.parent.GetComponent<RectTransform>();
             float boardSize = boardRect.rect.width;
 
-            float progress =
-                (float)(Time.time - MusicFunctions.GetTimeFromTick(spawnTick, music.MusicBPM))
-                / (
-                    MusicFunctions.GetTimeFromTick(hitTick, music.MusicBPM)
-                    - MusicFunctions.GetTimeFromTick(spawnTick, music.MusicBPM)
-                );
-            progress = Mathf.Clamp01(progress); // para não sair do range
+            float now = Time.time - initialTime; // tempo desde o início da música
+            float spawnTime = MusicFunctions.GetTimeFromTick(
+                spawnTick,
+                music.MusicBPM,
+                music.TicksPerBeat
+            );
+            float hitTime = MusicFunctions.GetTimeFromTick(
+                hitTick,
+                music.MusicBPM,
+                music.TicksPerBeat
+            );
+
+            float progress = (now - spawnTime) / (hitTime - spawnTime);
+            progress = Mathf.Clamp01(progress);
 
             if (progress >= 1)
             {
@@ -184,16 +191,18 @@ public class MusicVisualizer : MonoBehaviour
             if (ignoreNotes.Contains(note.Key))
                 continue; // para ter a certeza que não acertamos a mesma nota 2 vezes
 
-            float progress =
-                (float)(
-                    Time.time - MusicFunctions.GetTimeFromTick(note.Key.TickSpawner, music.MusicBPM)
-                )
-                / (
-                    MusicFunctions.GetTimeFromTick(
-                        note.Key.TickSpawner + ticksToHit,
-                        music.MusicBPM
-                    ) - MusicFunctions.GetTimeFromTick(note.Key.TickSpawner, music.MusicBPM)
-                );
+            float now = Time.time - initialTime;
+            float spawnTime = MusicFunctions.GetTimeFromTick(
+                note.Key.TickSpawner,
+                music.MusicBPM,
+                music.TicksPerBeat
+            );
+            float hitTime = MusicFunctions.GetTimeFromTick(
+                note.Key.TickSpawner + ticksToHit,
+                music.MusicBPM,
+                music.TicksPerBeat
+            );
+            float progress = (now - spawnTime) / (hitTime - spawnTime);
             progress = Mathf.Clamp01(progress);
 
             if (

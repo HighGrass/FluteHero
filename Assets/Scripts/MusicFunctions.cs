@@ -2,25 +2,28 @@ using UnityEngine;
 
 public static class MusicFunctions
 {
-    public static float GetSyncTiming(float time, int bpm)
+    public static float GetTickDuration(int bpm, int ticksPerBeat)
     {
-        float baseNoteSize = 60f / bpm;
-        int tick = (int)(time / baseNoteSize);
-        float syncTime = tick * baseNoteSize;
-
-        return syncTime;
+        return 60f / (bpm * (float)ticksPerBeat); // duração de 1 tick em segundos
     }
 
-    public static int GetTickFromTime(float time, int bpm)
+    public static float GetTimeFromTick(int tick, int bpm, int ticksPerBeat)
     {
-        float baseNoteSize = 60f / bpm;
-        return (int)(time / baseNoteSize);
+        float tickDuration = GetTickDuration(bpm, ticksPerBeat);
+        return tick * tickDuration;
     }
 
-    public static float GetTimeFromTick(int tick, int bpm)
+    public static int GetTickFromTime(float time, int bpm, int ticksPerBeat)
     {
-        float baseNoteSize = 60f / bpm;
-        return (int)(tick * baseNoteSize);
+        float tickDuration = GetTickDuration(bpm, ticksPerBeat);
+        return Mathf.FloorToInt(time / tickDuration);
+    }
+
+    public static float GetSyncTiming(float time, int bpm, int ticksPerBeat)
+    {
+        float tickDuration = GetTickDuration(bpm, ticksPerBeat);
+        int tick = Mathf.FloorToInt(time / tickDuration);
+        return tick * tickDuration;
     }
 
     public static int ConvertKeyToNumber(KeyCode key)
