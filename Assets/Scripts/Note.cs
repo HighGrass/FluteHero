@@ -1,17 +1,21 @@
+using UnityEngine;
+
+[System.Serializable]
 public class Note
 {
-    public int TickSpawner { get; set; }
-    public int NoteIndex { get; set; }
-    public int NoteDuration { get; set; }
+    public float time; // Original time in the chart
+    public int lane;   // Which lane (0-5)
 
-    public bool IsDragNote => isDragNote();
+    [System.NonSerialized] public float actualTime; // Time adjusted for initial delay
+    [System.NonSerialized] public float spawnTime; // When the note was actually spawned
+    [System.NonSerialized] public bool hit = false;
+    [System.NonSerialized] public bool missed = false;
+    [System.NonSerialized] public bool active = true;
+    [System.NonSerialized] public GameObject noteObject;
 
-    private bool isDragNote() => NoteDuration > 0;
-
-    public Note(int tickSpawner, int noteIndex, int noteDuration)
+    public Note(float time, int lane)
     {
-        TickSpawner = tickSpawner;
-        NoteIndex = noteIndex;
-        NoteDuration = noteDuration;
+        this.time = time;
+        this.lane = lane;
     }
 }
