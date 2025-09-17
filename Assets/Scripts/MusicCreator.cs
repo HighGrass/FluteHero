@@ -16,7 +16,11 @@ public class MusicCreator : MonoBehaviour
 
     [SerializeField]
     float initialDelay;
+
     string musicNotes;
+
+    [SerializeField]
+    private AudioSource audioSource;
 
     private int MAX_NOTE_DURATION = 5;
 
@@ -29,6 +33,31 @@ public class MusicCreator : MonoBehaviour
         { KeyCode.Alpha5, 0f },
         { KeyCode.Alpha6, 0f },
     };
+
+    private void Start()
+    {
+        string musicPath = Path.Combine(Path.Combine(Application.persistentDataPath, "Musics"), musicName);
+        AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(musicPath, "assetbundle"));
+        
+        if (bundle == null)
+        {
+            Debug.LogError("Failed to load AssetBundle!");
+            return;
+        }
+
+        AudioClip clip = bundle.LoadAsset<AudioClip>("assets/music.wav");
+
+        if (clip == null)
+        {
+            Debug.LogError("Failed to load AudioClip from AssetBundle!");
+            return;
+        }
+
+        audioSource.clip = clip;
+        audioSource.Play();
+
+        bundle.Unload(false);
+    }
 
     void Update()
     {
@@ -64,10 +93,8 @@ public class MusicCreator : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        string filePath = Path.Combine(Application.persistentDataPath, musicName);
-        Debug.Log(filePath);
         string file = FormatMusicFile();
-        FileManager.WriteToFile(filePath, file);
+        FileManager.WriteToFile(Path.Combine(Application.persistentDataPath, "Musics"), musicName, file);
     }
 
     string FormatMusicFile()

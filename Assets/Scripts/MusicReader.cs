@@ -11,6 +11,10 @@ public class MusicReader : MonoBehaviour
     GameManager gameManager;
     MusicDetails musicDetails;
 
+    private string path;
+
+    [SerializeField] private AudioSource audioSource;
+
     /*
     Mokalamity| (name)
     167| (duration)
@@ -22,18 +26,28 @@ public class MusicReader : MonoBehaviour
     tick-indexbutton-duration
     */
 
-    void Start() => ReadDetails();
+    private void Awake()
+    {
+        path = Path.Combine(Application.persistentDataPath, "Musics");
+    }
+
+    private void Start()
+    {
+        ReadDetails();
+    }
 
     private void ReadDetails()
     {
-        string path = Path.Combine(Application.persistentDataPath, MusicName);
-        string content = File.ReadAllText(path);
+        string musicPath = Path.Combine(Path.Combine(Application.persistentDataPath, "Musics"), MusicName);
+        string chart = File.ReadAllText(Path.Combine(musicPath, "Chart"));
+        AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(musicPath, "assetbundle"));
 
-        string[] details = content.Split('|');
+        // === READ CHART ===
+        string[] details = chart.Split('|');
         int musicDuration = int.Parse(details[1]);
         int musicBPM = int.Parse(details[2]);
         float initialDelay = float.Parse(details[3]);
-        string notesString = content.Split("!Notes!")[1];
+        string notesString = chart.Split("!Notes!")[1];
 
         string[] notes = notesString.Split('|');
 
@@ -62,5 +76,25 @@ public class MusicReader : MonoBehaviour
             musicNotes
         );
         gameManager.musicVisualizer.SetMusic(musicDetails);
+
+        // === LOAD AUDIO ===
+        if (bundle == null)
+        {
+            Debug.LogError("Failed to load AssetBundle!");
+            return;
+        }
+
+        AudioClip clip = bundle.LoadAsset<AudioClip>("assets/music.wav");
+
+        if (clip == null)
+        {
+            Debug.LogError("Failed to load AudioClip from AssetBundle!");
+            return;
+        }
+
+        audioSource.clip = clip;
+        audioSource.Play();
+
+        bundle.Unload(false);
     }
 }

@@ -3,26 +3,16 @@ using UnityEngine;
 
 public static class FileManager
 {
-    public static string CreateFile(string fileName, string directory = null)
+    public static void WriteToFile(string filePath, string musicName, string text)
     {
-        if (directory == null)
+        string musicFolderPath = Path.Combine(Path.GetDirectoryName(filePath), "Musics", musicName);
+        Debug.Log(musicFolderPath);
+        if (!Directory.Exists(musicFolderPath))
         {
-            directory = Application.persistentDataPath;
+            Directory.CreateDirectory(musicFolderPath);
         }
-
-        string filePath = Path.Combine(directory, fileName);
-
-        if (!File.Exists(filePath))
-        {
-            File.Create(filePath).Dispose();
-        }
-
-        return filePath;
-    }
-
-    public static void WriteToFile(string filePath, string text)
-    {
-        File.WriteAllText(filePath, text);
+        string chartFilePath = Path.Combine(musicFolderPath, "chart");
+        File.WriteAllText(chartFilePath, text);
     }
 
     public static string ReadFromFile(string filePath)
@@ -51,18 +41,6 @@ public static class FileManager
         {
             string newFilePath = Path.Combine(Path.GetDirectoryName(oldFilePath), newFileName);
             File.Move(oldFilePath, newFilePath);
-        }
-    }
-
-    public static void AppendToFile(string filePath, string text)
-    {
-        if (File.Exists(filePath))
-        {
-            File.AppendAllText(filePath, text);
-        }
-        else
-        {
-            WriteToFile(filePath, text);
         }
     }
 }
