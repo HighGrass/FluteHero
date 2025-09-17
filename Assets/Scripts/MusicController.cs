@@ -5,17 +5,13 @@ using UnityEngine;
 public class MusicController : MonoBehaviour
 {
     public Music currentMusic;
-    private AudioSource audioSource;
+
+    [SerializeField] private AudioSource audioSource;
+    
     private float startTime;
     private float pausedTime;
     private bool isPlaying = false;
     private bool audioLoadedSuccessfully = false;
-
-    private void Awake()
-    {
-        audioSource = gameObject.AddComponent<AudioSource>();
-        audioSource.playOnAwake = false;
-    }
 
     public void LoadMusic(Music music)
     {

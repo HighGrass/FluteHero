@@ -1528,6 +1528,7 @@ MonoBehaviour:
     bpm: 0
     notes: []
     audioClip: {fileID: 0}
+  audioSource: {fileID: 1450571136}
 --- !u!1 &1223638284
 GameObject:
   m_ObjectHideFlags: 0
@@ -2391,6 +2392,6 @@ SceneRoots:
   - {fileID: 2138898129}
   - {fileID: 340007263}
   - {fileID: 1168007891}
-  - {fileID: 1450571135}
   - {fileID: 1942535972}
   - {fileID: 164778609}
+  - {fileID: 1450571135}

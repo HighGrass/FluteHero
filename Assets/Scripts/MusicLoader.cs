@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class MusicLoader : MonoBehaviour
 {
+    [SerializeField]
+    private AudioSource audioSource;
+
     public Music LoadMusic(string musicName)
     {
         string musicFolderPath = Path.Combine(Application.streamingAssetsPath, "Musics", musicName);
@@ -75,6 +78,13 @@ public class MusicLoader : MonoBehaviour
             assetBundle.Unload(false);
             return null;
         }
+        if (audioSource == null)
+            audioSource = FindAnyObjectByType<AudioSource>();
+
+        audioSource.clip = audioClip;
+        audioSource.Play();
+        audioSource.Pause();
+        audioSource.time = 0f;
 
         // Convert note data to Note objects
         List<Note> notes = new List<Note>();
