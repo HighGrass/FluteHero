@@ -110,8 +110,6 @@ public class FluteHeroGame : MonoBehaviour
 
         // Start music - DON'T reset musicStartTime!
         musicController.Play();
-
-        Debug.Log($"Music started. Current music time: {GetCurrentMusicTime():F2}");
     }
 
     private void LoadMusic()

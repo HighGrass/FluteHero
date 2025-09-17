@@ -2138,6 +2138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9734e27e90dbcb4f846bd27cab62cea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MusicLoader
+  audioSource: {fileID: 0}
 --- !u!4 &1942535972
 Transform:
   m_ObjectHideFlags: 0
