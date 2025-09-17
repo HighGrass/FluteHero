@@ -68,7 +68,7 @@ public class FluteHeroGame : MonoBehaviour
                 Image zoneImage = hitZones[i].GetComponent<Image>();
                 if (zoneImage != null)
                 {
-                    zoneImage.color = new Color(laneColors[i].r, laneColors[i].g, laneColors[i].b, 0.3f);
+                    zoneImage.color = new Color(laneColors[i].r, laneColors[i].g, laneColors[i].b, 1);
                 }
             }
         }
@@ -90,18 +90,18 @@ public class FluteHeroGame : MonoBehaviour
         if (countdownText != null)
             countdownText.gameObject.SetActive(true);
 
-        // Wait for initial delay with countdown while updating notes
-        float countdown = initialDelay;
-        while (countdown > 0)
+        float countdownEndTime = musicStartTime + initialDelay;
+
+        while (Time.time < countdownEndTime)
         {
+            float countdown = countdownEndTime - Time.time;
             if (countdownText != null)
                 countdownText.text = $"Starting in: {countdown:F1}s";
 
             // Update notes during countdown
             UpdateNotes();
 
-            yield return new WaitForSeconds(0.1f);
-            countdown -= 0.1f;
+            yield return null;
         }
 
         // Hide countdown
@@ -205,7 +205,7 @@ public class FluteHeroGame : MonoBehaviour
                 statusText.text = "Paused";
         }
     }
-    private float GetCurrentMusicTime()
+    public float GetCurrentMusicTime()
     {
         if (!gameStarted) return -initialDelay;
 
@@ -287,11 +287,11 @@ public class FluteHeroGame : MonoBehaviour
         note.noteObject = noteObj;
         activeNoteObjects.Add(noteObj);
 
-        Debug.Log($"Spawned note for lane {note.lane} at time {note.time:F2}. " +
-                  $"Current music time: {currentMusicTime:F2}, " +
-                  $"Spawn time: {spawnTime:F2}, " +
-                  $"Initial progress: {initialProgress:F2}, " +
-                  $"Initial X: {initialXPos:F2}");
+        // Debug.Log($"Spawned note for lane {note.lane} at time {note.time:F2}. " +
+        //           $"Current music time: {currentMusicTime:F2}, " +
+        //           $"Spawn time: {spawnTime:F2}, " +
+        //           $"Initial progress: {initialProgress:F2}, " +
+        //           $"Initial X: {initialXPos:F2}");
     }
 
     private void DebugNoteInfo()
@@ -333,8 +333,12 @@ public class FluteHeroGame : MonoBehaviour
         // Update note position (keep Y at 0 since it's in the hit zone)
         note.noteObject.transform.localPosition = new Vector3(xPos, 0, 0);
 
-        // Only check for misses after the note should have been hit
-        if (currentMusicTime >= note.time && xPos < hitX - 50f && !note.hit && !note.missed)
+
+        if (!note.hit && !note.missed && currentMusicTime > note.time + 0.05f)
+        {
+            note.noteObject.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+        }
+        if (!note.hit && !note.missed && currentMusicTime > note.time + 0.1f)
         {
             note.missed = true;
             note.active = false;
@@ -353,15 +357,6 @@ public class FluteHeroGame : MonoBehaviour
         // Only check input after music starts (positive time)
         if (currentMusicTime < 0) return;
 
-        // Check for lane key presses (1-6 keys)
-        for (int lane = 0; lane < 6; lane++)
-        {
-            if (Input.GetKeyDown(KeyCode.Alpha1 + lane) || Input.GetKeyDown(KeyCode.Keypad1 + lane))
-            {
-                CheckNoteHit(lane, currentMusicTime);
-            }
-        }
-
         // Restart game
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -375,7 +370,7 @@ public class FluteHeroGame : MonoBehaviour
         }
     }
 
-    private void CheckNoteHit(int lane, float currentMusicTime)
+    public void CheckNoteHit(int lane, float currentMusicTime)
     {
         if (musicController.currentMusic == null) return;
 
@@ -410,6 +405,7 @@ public class FluteHeroGame : MonoBehaviour
                 }
             }
         }
+
     }
 
     private int CalculateScore(float timeDifference)
