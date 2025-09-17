@@ -289,7 +289,8 @@ MonoBehaviour:
   timeText: {fileID: 229974075}
   statusText: {fileID: 1166956708}
   countdownText: {fileID: 26389852}
-  notePrefab: {fileID: 2837020518811395284, guid: b6a59ee2005faa541acf5c5b8ec444a7, type: 3}
+  notePrefabEven: {fileID: 2837020518811395284, guid: b6a59ee2005faa541acf5c5b8ec444a7, type: 3}
+  notePrefabOdd: {fileID: 2837020518811395284, guid: 838e2fef7d3a9934a95d17f18601e022, type: 3}
   hitZones:
   - {fileID: 1670921385}
   - {fileID: 1844219231}

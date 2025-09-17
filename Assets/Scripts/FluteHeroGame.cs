@@ -13,7 +13,8 @@ public class FluteHeroGame : MonoBehaviour
     public TMP_Text timeText;
     public TMP_Text statusText;
     public TMP_Text countdownText;
-    public GameObject notePrefab;
+    public GameObject notePrefabEven;
+    public GameObject notePrefabOdd;
     public RectTransform[] hitZones; // Array of 6 hit zones, one for each lane
 
     [Header("Game Settings")]
@@ -255,15 +256,16 @@ public class FluteHeroGame : MonoBehaviour
 
     private void CreateNoteObject(Note note)
     {
-        if (notePrefab == null || hitZones.Length <= note.lane || hitZones[note.lane] == null)
+        if (notePrefabEven == null || notePrefabOdd == null || hitZones.Length <= note.lane || hitZones[note.lane] == null)
             return;
 
         // Get the correct hit zone for this lane
         RectTransform hitZone = hitZones[note.lane];
 
-        // Create note as child of the hit zone
-        GameObject noteObj = Instantiate(notePrefab, hitZone);
+        GameObject prefab = note.lane == 0 || note.lane % 2 == 0 ? notePrefabEven : notePrefabOdd;
 
+        GameObject noteObj = Instantiate(prefab, hitZone);
+        
         // Set note color based on lane
         Image noteImage = noteObj.GetComponent<Image>();
         if (noteImage != null)
