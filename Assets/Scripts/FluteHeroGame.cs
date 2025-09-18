@@ -86,6 +86,7 @@ public class FluteHeroGame : MonoBehaviour
 
     private void Start()
     {
+        musicName = GameData.musicName;
         musicLoader = gameObject.AddComponent<MusicLoader>();
         InitializeHitZones();
         StartGameWithDelay();
@@ -155,15 +156,14 @@ public class FluteHeroGame : MonoBehaviour
     private void LoadMusic()
     {
         Music music = musicLoader.LoadMusic(musicName);
+
         if (music == null)
         {
             Debug.LogWarning("Failed to load music from AssetBundle, creating demo notes with dummy audio");
-            music = CreateDemoMusic();
         }
         else if (music.audioClip == null)
         {
             Debug.LogWarning("Music loaded but audio clip is null, creating demo audio");
-            music.audioClip = AudioClip.Create("FallbackAudio", 44100 * 2, 1, 44100, false);
         }
 
         musicController.LoadMusic(music);
@@ -171,29 +171,10 @@ public class FluteHeroGame : MonoBehaviour
         // Verify audio clip was loaded
         if (musicController.currentMusic == null || musicController.currentMusic.audioClip == null)
         {
-            Debug.LogError("Completely failed to load any audio. Creating emergency fallback.");
-            music = CreateDemoMusic();
-            musicController.LoadMusic(music);
+            Debug.LogError("Completely failed to load any audio.");
         }
     }
 
-    private Music CreateDemoMusic()
-    {
-        List<Note> demoNotes = new List<Note>
-    {
-        new Note(0f, 0),
-        new Note(1f, 1),
-        new Note(2f, 2),
-        new Note(3f, 3),
-        new Note(4f, 4),
-        new Note(5f, 5)
-    };
-
-        // Create a dummy audio clip
-        AudioClip dummyClip = AudioClip.Create("DemoAudio", 44100 * 20, 1, 44100, false); // 20 seconds
-
-        return new Music("Demo", 120f, demoNotes, dummyClip);
-    }
 
     private void Update()
     {
@@ -452,9 +433,6 @@ public class FluteHeroGame : MonoBehaviour
                 }
             }
         }
-        // if (HP > 0)
-        //     HP -= 1;
-
     }
 
     private int CalculateScore(float timeDifference)

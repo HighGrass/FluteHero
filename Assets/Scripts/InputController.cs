@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class InputController : MonoBehaviour
 {
@@ -14,12 +15,13 @@ public class InputController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1)) gameController.CheckNoteHit(0, gameController.GetCurrentMusicTime());
-        if (Input.GetKeyDown(KeyCode.Alpha2)) gameController.CheckNoteHit(1, gameController.GetCurrentMusicTime());
-        if (Input.GetKeyDown(KeyCode.Alpha3)) gameController.CheckNoteHit(2, gameController.GetCurrentMusicTime());
-        if (Input.GetKeyDown(KeyCode.Alpha4)) gameController.CheckNoteHit(3, gameController.GetCurrentMusicTime());
-        if (Input.GetKeyDown(KeyCode.Alpha5)) gameController.CheckNoteHit(4, gameController.GetCurrentMusicTime());
-        if (Input.GetKeyDown(KeyCode.Alpha6)) gameController.CheckNoteHit(5, gameController.GetCurrentMusicTime());
+        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.A)) gameController.CheckNoteHit(5, gameController.GetCurrentMusicTime());
+        if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.S)) gameController.CheckNoteHit(4, gameController.GetCurrentMusicTime());
+        if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.D)) gameController.CheckNoteHit(3, gameController.GetCurrentMusicTime());
+        if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.J)) gameController.CheckNoteHit(2, gameController.GetCurrentMusicTime());
+        if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.K)) gameController.CheckNoteHit(1, gameController.GetCurrentMusicTime());
+        if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.L)) gameController.CheckNoteHit(0, gameController.GetCurrentMusicTime());
+        if (Input.GetKeyDown(KeyCode.M)) SceneManager.LoadScene("MainMenu");
     }
 
     public void OnMessageArrived(string message)

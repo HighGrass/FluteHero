@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -49,7 +50,7 @@ public class MusicLoader : MonoBehaviour
             Debug.Log($"  - {assetName}");
         }
 
-        // Try to load audio clip from AssetBundle with different possible paths
+        // Try to load audio clip
         AudioClip audioClip = null;
         string[] possiblePaths = new string[]
         {
@@ -74,43 +75,86 @@ public class MusicLoader : MonoBehaviour
             assetBundle.Unload(false);
             return null;
         }
+
         if (audioSource == null)
             audioSource = FindAnyObjectByType<AudioSource>();
 
-        audioSource.clip = audioClip;
-        audioSource.Play();
-        audioSource.Pause();
-        audioSource.time = 0f;
+        if (audioSource != null)
+        {
+            audioSource.clip = audioClip;
+            audioSource.Play();
+            audioSource.Pause();
+            audioSource.time = 0f;
+        }
 
-        // Convert note data to Note objects
+        // === Convert note data into Note objects (seconds only) ===
         List<Note> notes = new List<Note>();
+
+        int beatsPerMeasure = 4;
+        int subdivisionsPerBeat = 4;
+        if (!string.IsNullOrEmpty(musicData.signature))
+        {
+            string[] sigParts = musicData.signature.Split('/');
+            if (sigParts.Length == 2 && int.TryParse(sigParts[0], out int numerator))
+            {
+                beatsPerMeasure = numerator;
+            }
+        }
+
         foreach (NoteData noteData in musicData.notes)
         {
-            Note note = new Note(noteData.time, noteData.lane);
-            notes.Add(note);
+            float timeInSeconds = -1f;
+
+            if (!string.IsNullOrEmpty(noteData.beat))
+            {
+                try
+                {
+                    timeInSeconds = BeatTimeUtils.BeatToSeconds(
+                        noteData.beat,
+                        beatsPerMeasure,
+                        subdivisionsPerBeat,
+                        musicData.bpm
+                    );
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Invalid beat notation {noteData.beat}: {e.Message}");
+                }
+            }
+            else if (noteData.time >= 0f)
+            {
+                timeInSeconds = noteData.time; // fallback to seconds if provided
+            }
+
+            if (timeInSeconds >= 0f)
+            {
+                notes.Add(new Note(timeInSeconds, noteData.lane));
+            }
         }
 
         // Sort notes by time
         notes.Sort((a, b) => a.time.CompareTo(b.time));
 
-        // Unload AssetBundle (the audio clip is already loaded into memory)
+        // Unload AssetBundle (audio clip stays in memory)
         assetBundle.Unload(false);
 
         return new Music(musicName, musicData.bpm, notes, audioClip);
     }
 }
 
-// Helper classes for JSON deserialization
-[System.Serializable]
+// === Helpers ===
+[Serializable]
 public class MusicData
 {
     public float bpm;
+    public string signature; // e.g. "4/4"
     public NoteData[] notes;
 }
 
-[System.Serializable]
+[Serializable]
 public class NoteData
 {
-    public float time;
+    public float time = -1f; // optional fallback
+    public string beat;      // "M.S" format
     public int lane;
 }

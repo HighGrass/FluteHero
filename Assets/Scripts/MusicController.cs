@@ -27,16 +27,6 @@ public class MusicController : MonoBehaviour
                 Debug.Log($"Successfully loaded audio clip: {music.audioClip.name}, length: {music.audioClip.length}s, channels: {music.audioClip.channels}, frequency: {music.audioClip.frequency}");
                 audioLoadedSuccessfully = true;
             }
-            else
-            {
-                Debug.LogError($"Audio clip validation failed for: {music.audioClip.name}");
-                CreateFallbackAudioClip();
-            }
-        }
-        else
-        {
-            Debug.LogError("Failed to load music or audio clip is null");
-            CreateFallbackAudioClip();
         }
     }
 
@@ -49,14 +39,6 @@ public class MusicController : MonoBehaviour
         if (clip.frequency <= 0) return false;
 
         return true;
-    }
-
-    private void CreateFallbackAudioClip()
-    {
-        Debug.Log("Creating fallback audio clip");
-        AudioClip fallbackClip = AudioClip.Create("FallbackMusic", 44100 * 30, 2, 44100, false);
-        audioSource.clip = fallbackClip;
-        audioLoadedSuccessfully = true;
     }
 
     public void Play()
@@ -85,37 +67,7 @@ public class MusicController : MonoBehaviour
             {
                 Debug.LogError($"Error playing music: {e.Message}");
                 isPlaying = false;
-
-                // Try fallback approach
-                StartCoroutine(PlayWithFallback());
             }
-        }
-    }
-
-    private IEnumerator PlayWithFallback()
-    {
-        Debug.Log("Trying fallback playback method...");
-
-        // Wait a frame and try again
-        yield return null;
-
-        try
-        {
-            audioSource.Stop();
-            audioSource.clip = null;
-            CreateFallbackAudioClip();
-
-            audioSource.time = pausedTime;
-            audioSource.Play();
-            startTime = Time.time - pausedTime;
-            isPlaying = true;
-            pausedTime = 0f;
-            Debug.Log("Fallback playback successful");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Fallback playback also failed: {e.Message}");
-            isPlaying = false;
         }
     }
 
