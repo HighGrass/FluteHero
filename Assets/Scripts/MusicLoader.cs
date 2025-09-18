@@ -56,10 +56,6 @@ public class MusicLoader : MonoBehaviour
             "assets/music.wav",
             "assets/music.ogg",
             "assets/music.mp3",
-            "music.wav",
-            "music.ogg",
-            "music.mp3",
-            "music"
         };
 
         foreach (string path in possiblePaths)

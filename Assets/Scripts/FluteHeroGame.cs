@@ -45,6 +45,44 @@ public class FluteHeroGame : MonoBehaviour
     private bool gameStarted = false;
     private MusicLoader musicLoader;
     private int nextNoteIndex = 0; // Track the next note to spawn
+    [SerializeField]
+    private Animator helathBarAnimator;
+    private int hp = 10;
+    public int HP
+    {
+        get
+        {
+            return hp;
+        }
+        set
+        {
+            hp = Mathf.Clamp(value, 0, 10);
+            helathBarAnimator.SetInteger("HP", hp);
+            if (hp == 0)
+            {
+                statusText.text = "Game Over! Press R to restart";
+                musicController.Stop();
+                gameStarted = false;
+                nextNoteIndex = 0;
+                // Reset all notes
+                if (musicController.currentMusic != null)
+                {
+                    foreach (Note note in musicController.currentMusic.notes)
+                    {
+                        note.hit = false;
+                        note.missed = false;
+                        note.active = true;
+                        if (note.noteObject != null)
+                        {
+                            Destroy(note.noteObject);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private Coroutine startGameCoroutine;
 
     private void Start()
     {
@@ -78,7 +116,7 @@ public class FluteHeroGame : MonoBehaviour
     private void StartGameWithDelay()
     {
         LoadMusic();
-        StartCoroutine(GameStartRoutine());
+        startGameCoroutine = StartCoroutine(GameStartRoutine());
     }
 
     private IEnumerator GameStartRoutine()
@@ -111,6 +149,7 @@ public class FluteHeroGame : MonoBehaviour
 
         // Start music - DON'T reset musicStartTime!
         musicController.Play();
+        Debug.Log($"Music started in time: {musicController.GetCurrentTime()}s");
     }
 
     private void LoadMusic()
@@ -158,6 +197,13 @@ public class FluteHeroGame : MonoBehaviour
 
     private void Update()
     {
+        // Always check for restart, even when game is not started/over
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Restart();
+            return; // Restart after checking input
+        }
+
         if (!gameStarted) return;
 
         // Debug: Press D to show note info
@@ -265,7 +311,7 @@ public class FluteHeroGame : MonoBehaviour
         GameObject prefab = note.lane == 0 || note.lane % 2 == 0 ? notePrefabEven : notePrefabOdd;
 
         GameObject noteObj = Instantiate(prefab, hitZone);
-        
+
         // Set note color based on lane
         Image noteImage = noteObj.GetComponent<Image>();
         if (noteImage != null)
@@ -340,7 +386,8 @@ public class FluteHeroGame : MonoBehaviour
         {
             note.noteObject.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
         }
-        if (!note.hit && !note.missed && currentMusicTime > note.time + 0.1f)
+
+        if (!note.hit && !note.missed && currentMusicTime > note.time + hitRange + 0.05f)
         {
             note.missed = true;
             note.active = false;
@@ -348,6 +395,7 @@ public class FluteHeroGame : MonoBehaviour
             {
                 Destroy(note.noteObject);
             }
+            HP -= 1;
             Debug.Log($"Missed note in lane {note.lane} at time {note.time}");
         }
     }
@@ -359,12 +407,6 @@ public class FluteHeroGame : MonoBehaviour
         // Only check input after music starts (positive time)
         if (currentMusicTime < 0) return;
 
-        // Restart game
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            Restart();
-        }
-
         // Pause/Resume game
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -374,6 +416,8 @@ public class FluteHeroGame : MonoBehaviour
 
     public void CheckNoteHit(int lane, float currentMusicTime)
     {
+        hitZones[lane]?.GetComponentInChildren<Animator>()?.SetTrigger("Hit");
+
         if (musicController.currentMusic == null) return;
 
         // Check all notes in the current lane
@@ -383,11 +427,10 @@ public class FluteHeroGame : MonoBehaviour
 
             if (note.active && !note.hit && !note.missed && note.lane == lane && note.noteObject != null)
             {
-                float xPos = note.noteObject.transform.localPosition.x;
                 float timeDifference = Mathf.Abs(note.time - currentMusicTime);
 
                 // Check if note is in hit range (both position and time)
-                if (Mathf.Abs(xPos - hitX) < hitRange && timeDifference < 0.3f)
+                if (timeDifference < hitRange)
                 {
                     // Successful hit!
                     note.hit = true;
@@ -402,11 +445,15 @@ public class FluteHeroGame : MonoBehaviour
                         Destroy(note.noteObject);
                     }
 
+                    if (HP < 10)
+                        HP += 1;
                     Debug.Log($"Hit note in lane {lane} at time {note.time} with accuracy: {timeDifference:F2}s, Score: +{points}");
-                    break;
+                    return;
                 }
             }
         }
+        // if (HP > 0)
+        //     HP -= 1;
 
     }
 
@@ -444,10 +491,13 @@ public class FluteHeroGame : MonoBehaviour
 
     public void Restart()
     {
+        HP = 10;
         musicController.Stop();
         score = 0;
         gameStarted = false;
         nextNoteIndex = 0;
+        StopCoroutine(startGameCoroutine);
+        startGameCoroutine = null;
 
         // Reset all notes
         if (musicController.currentMusic != null)

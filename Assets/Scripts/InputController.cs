@@ -32,10 +32,9 @@ public class InputController : MonoBehaviour
             char c = message[i];
             if (c == '1')
             {
-                Debug.Log($"Pin {i} PRESSED");
                 gameController.CheckNoteHit(i, gameController.GetCurrentMusicTime());
             }
-            else if (c == '2') Debug.Log($"Pin {i} RELEASED");
+            // else if (c == '2') Debug.Log($"Pin {i} RELEASED");
 
         }
     }
