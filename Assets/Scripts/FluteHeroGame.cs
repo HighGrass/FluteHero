@@ -104,7 +104,7 @@ public class FluteHeroGame : MonoBehaviour
         {
             if (hitZones[i] != null)
             {
-                Image zoneImage = hitZones[i].GetComponent<Image>();
+                Image zoneImage = hitZones[i].GetComponentInChildren<Image>();
                 if (zoneImage != null)
                 {
                     zoneImage.color = new Color(laneColors[i].r, laneColors[i].g, laneColors[i].b, 1);
