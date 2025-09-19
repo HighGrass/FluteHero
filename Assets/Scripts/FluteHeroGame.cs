@@ -16,6 +16,8 @@ public class FluteHeroGame : MonoBehaviour
     public GameObject notePrefabEven;
     public GameObject notePrefabOdd;
     public RectTransform[] hitZones; // Array of 6 hit zones, one for each lane
+    public GameObject finalMenu;
+    public TMP_Text finalScoreText;
 
     [Header("Game Settings")]
     public float travelTime = 2f; // Time for note to travel from spawn to hit
@@ -64,6 +66,8 @@ public class FluteHeroGame : MonoBehaviour
                 musicController.Stop();
                 gameStarted = false;
                 nextNoteIndex = 0;
+                finalMenu.SetActive(true);
+                finalScoreText.text = $"Final Score: {score}";
                 // Reset all notes
                 if (musicController.currentMusic != null)
                 {
@@ -88,6 +92,7 @@ public class FluteHeroGame : MonoBehaviour
     {
         musicName = GameData.musicName;
         musicLoader = gameObject.AddComponent<MusicLoader>();
+        finalMenu.SetActive(false);
         InitializeHitZones();
         StartGameWithDelay();
     }
@@ -204,6 +209,9 @@ public class FluteHeroGame : MonoBehaviour
 
         if (musicController.IsFinished())
         {
+            finalMenu.SetActive(true);
+            finalScoreText.text = $"Final Score: {score}";
+
             if (statusText != null)
                 statusText.text = "Finished! Press R to restart";
         }
@@ -212,9 +220,9 @@ public class FluteHeroGame : MonoBehaviour
     private void UpdateUI()
     {
         if (scoreText != null)
-            scoreText.text = $"Score: {score}";
+            scoreText.text = $"{score}";
 
-        if (timeText != null)
+        if (timeText != null && !musicController.IsFinished())
         {
             float currentTime = GetCurrentMusicTime();
             if (currentTime < 0)
@@ -469,13 +477,15 @@ public class FluteHeroGame : MonoBehaviour
 
     public void Restart()
     {
-        HP = 10;
         musicController.Stop();
+        finalMenu.SetActive(false);
+        HP = 10;
         score = 0;
         gameStarted = false;
         nextNoteIndex = 0;
         StopCoroutine(startGameCoroutine);
         startGameCoroutine = null;
+        timeText.text = $"Time: 0s";
 
         // Reset all notes
         if (musicController.currentMusic != null)
@@ -503,6 +513,11 @@ public class FluteHeroGame : MonoBehaviour
         activeNoteObjects.Clear();
 
         StartGameWithDelay();
+    }
+
+    public void MainMenu()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
 
     private void OnDestroy()

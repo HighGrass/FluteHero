@@ -10,15 +10,18 @@ public class MusicItem : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI title;
 
+    private string musicName;
+
     public void SetData(Sprite cover, string title)
     {
         this.cover.sprite = cover;
-        this.title.text = title;
+        musicName = title;
+        this.title.text = title != null ? title.Replace('_', ' ') : "Unknown Title";
     }
 
     public void PlayTheGameWithThisMusic()
     {
-        GameData.musicName = title.text;
+        GameData.musicName = musicName;
         SceneManager.LoadScene("Game");
     }
 }

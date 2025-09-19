@@ -122,6 +122,6 @@ public class MusicController : MonoBehaviour
         float currentTime = GetCurrentTime();
         float lastNoteTime = currentMusic.notes[currentMusic.notes.Count - 1].time;
 
-        return currentTime > lastNoteTime + 5f; // 5 seconds after last note
+        return currentTime > lastNoteTime + 2f; // 2 seconds after last note
     }
 }

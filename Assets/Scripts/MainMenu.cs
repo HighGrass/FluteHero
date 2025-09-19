@@ -3,8 +3,10 @@ using UnityEngine;
 public class MainMenu : MonoBehaviour
 {
     private bool showingList = false;
+    private bool showingOptions = false;
     [SerializeField] private Animator musicList;
     [SerializeField] private Animator buttons;
+    [SerializeField] private Animator optionsMenu;
 
     private MusicLister musicLister;
 
@@ -36,5 +38,28 @@ public class MainMenu : MonoBehaviour
             musicList.SetTrigger("Hide");
             buttons.SetTrigger("Show");
         }
+    }
+
+    public void ToggleOptions()
+    {
+        showingOptions = !showingOptions;
+        if (showingOptions)
+        {
+            optionsMenu.SetTrigger("Show");
+            buttons.SetTrigger("Hide");
+        }
+        else
+        {
+            optionsMenu.SetTrigger("Hide");
+            buttons.SetTrigger("Show");
+        }
+    }
+
+    public void QuitGame()
+    {
+        if (Application.isEditor)
+            UnityEditor.EditorApplication.isPlaying = false;
+        else
+            Application.Quit();
     }
 }
